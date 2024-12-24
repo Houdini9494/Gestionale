@@ -115,16 +115,27 @@ def genera_csv(righe):
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
 def main():
-    #creazione variabile della connessione
-    db = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="admin",
-        database="ilMioDatabase"
-    )
+    while True:
+        try:
+            #inserimento nome del db da utilizzare
+            host_db=input("Inserisci l'host del database da utilizzare: ")
+            user_db=input("Inserisci l'user con il quale accedere al database: ")
+            psw_db=input("Inserisci la password per accedere al database: ")
+            nome_db=input("Inserisci il nome del database da utilizzare: ")
 
-    #creazione del cursore ed assegnazione alla variabile relativa alla connessione creata
-    cursor = db.cursor()
+            #creazione variabile della connessione
+            db = mysql.connector.connect(
+                host=host_db,
+                user=user_db,
+                password=psw_db,
+                database=nome_db
+            )
+
+            #creazione del cursore ed assegnazione alla variabile relativa alla connessione creata
+            cursor = db.cursor()
+            break #esce dal ciclo se i dati sono corretti
+        except:
+            print("Si è verificato un errore inaspettato, riavviare il programma.")
 #----------------------------------------------------------------------
     #ELABORAZIONE TABELLA
     #inizializzazione del ciclo
