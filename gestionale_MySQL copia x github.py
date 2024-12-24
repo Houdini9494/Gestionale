@@ -117,7 +117,7 @@ def genera_csv(righe):
 def main():
     while True:
         try:
-            #inserimento nome del db da utilizzare
+            #inserimento dati del db da utilizzare
             host_db=input("Inserisci l'host del database da utilizzare: ")
             user_db=input("Inserisci l'user con il quale accedere al database: ")
             psw_db=input("Inserisci la password per accedere al database: ")
