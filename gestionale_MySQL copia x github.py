@@ -135,7 +135,7 @@ def main():
             cursor = db.cursor()
             break #esce dal ciclo se i dati sono corretti
         except:
-            print("Si è verificato un errore inaspettato, riavviare il programma.")
+            print("Si è verificato un errore, inserire i dati corretti.")
 #----------------------------------------------------------------------
     #ELABORAZIONE TABELLA
     #inizializzazione del ciclo
