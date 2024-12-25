@@ -157,6 +157,9 @@ def main():
         while True:
             menu(nome_azienda,user)
             scelta=int(input("\nDigita la scelta: "))
+            while scelta<1 or scelta>6:
+                print("Inserito valore non valido, digitare scelta corretta (1-6)")
+                scelta=int(input("\nDigita la scelta: "))
 
             if scelta==1:
                 sql=cerca()
@@ -203,13 +206,14 @@ def main():
                     if scelta=="n":
                         break
 
+                #generazione file csv
                 genera_csv(righe,nome_azienda)
             elif scelta==6:
                 print("Esco dal programma..")
                 db.close()
                 break
     except ValueError:
-        print("Inserito valore non valido, digitare scelta corretta (1-6)")
+        print("Inserito valore non valido.")
     except Exception:
         print("Si è verificato un errore inatteso.")
     finally:
