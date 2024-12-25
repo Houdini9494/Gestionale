@@ -2,12 +2,13 @@ import mysql.connector
 from mysql.connector import cursor
 import csv
 from datetime import datetime
+import genera_db
 
 #----------------------------------------------------------------------
-def menu():
+def menu(nome_azienda):
     print()
     print("--------------------------------")
-    print("Azienda: laMiaAzienda S.r.l")
+    print(f"Azienda: {nome_azienda}")
     print()
     print("\tMENU")
     print("1-Cerca nel database")
@@ -29,7 +30,12 @@ def cerca():
 
 #----------------------------------------------------------------------
 def insert():
-    tabella=input("Inserisci il nome della tabella da utilizzare (clienti/prodotti): ").lower()
+    while True:
+        tabella = input("Inserisci il nome della tabella da utilizzare (clienti/prodotti): ").lower()
+        if tabella in ["clienti", "prodotti"]:
+            break
+        print("Tabella non valida. Inserisci 'clienti' o 'prodotti'.")
+
     if tabella=="prodotti":
         nome=input("Inserisci nome prodotto: ")
         um=input("Inserisci unità di misura del prodotto: ")
@@ -53,7 +59,12 @@ def insert():
     return sql, values
 #----------------------------------------------------------------------
 def modifica():
-    tabella=input("Inserisci il nome della tabella da utilizzare: ")
+    while True:
+        tabella = input("Inserisci il nome della tabella da utilizzare (clienti/prodotti): ").lower()
+        if tabella in ["clienti", "prodotti"]:
+            break
+        print("Tabella non valida. Inserisci 'clienti' o 'prodotti'.")
+
     campo=input("Inserisci nome del campo da modificare: ")
     idn=input("Inserisci id elemento da modificare: ")
     nuovo_val=input("Inserisci il nuovo valore: ")
@@ -63,7 +74,12 @@ def modifica():
     return sql, values
 #---------------------------------------------------------------------
 def elimina():
-    tabella=input("Inserisci il nome della tabella da utilizzare: ")
+    while True:
+        tabella = input("Inserisci il nome della tabella da utilizzare (clienti/prodotti): ").lower()
+        if tabella in ["clienti", "prodotti"]:
+            break
+        print("Tabella non valida. Inserisci 'clienti' o 'prodotti'.")
+
     idn=input("Inserisci id elemento da eliminare: ")
 
     sql=f"DELETE from {tabella} WHERE id = {idn}"
@@ -89,7 +105,7 @@ def get_prodotto():
     return sql
 #----------------------------------------------------------------------
 #generazione ddt in formato csv
-def genera_csv(righe):
+def genera_csv(righe,nome_azienda):
     ddt_name=input("Inserisci nome del documento: ").replace(" ", "_")
     while True: #ciclo di validazione della data che tenta di convertire la stringa inserita, nel formato richiesto dal programma, tramite il modulo datetime
         data=input("Inserisci la data del documento (gg/mm/aaaa): ")
@@ -103,7 +119,7 @@ def genera_csv(righe):
     fileName=f"{ddt_name}_{data_formattata}.csv"
     with open(fileName,"w") as file: #apre file in scrittura
         contenuto=csv.writer(file) #il metodo csv.writer crea un oggetto sul quale scrivere le righe da convertire poi in file.csv
-        contenuto.writerow(["laMiaAzienda S.r.l"])
+        contenuto.writerow([nome_azienda])
         contenuto.writerow([data]) #Per scrivere una singola stringa senza dividerla in caratteri separati da virgole, va passata la stringa come un elemento di una lista
         contenuto.writerow([])
         contenuto.writerows(righe) #scrive la lista di liste nell'oggetto
@@ -115,53 +131,51 @@ def genera_csv(righe):
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
 def main():
+    host,user,psw,nome=genera_db.inizializza_db()
     while True:
         try:
-            #inserimento dati del db da utilizzare
-            host_db=input("Inserisci l'host del database da utilizzare: ")
-            user_db=input("Inserisci l'user con il quale accedere al database: ")
-            psw_db=input("Inserisci la password per accedere al database: ")
-            nome_db=input("Inserisci il nome del database da utilizzare: ")
-
             #creazione variabile della connessione
             db = mysql.connector.connect(
-                host=host_db,
-                user=user_db,
-                password=psw_db,
-                database=nome_db
+                host=host,
+                user=user,
+                password=psw,
+                database=nome
             )
+            print("\n-----LOGIN-----\n")
+            nome_azienda=input("Inserisci il nome dell'Azienda: ")
 
             #creazione del cursore ed assegnazione alla variabile relativa alla connessione creata
-            cursor = db.cursor()
+            cursore = db.cursor()
             break #esce dal ciclo se i dati sono corretti
         except:
             print("Si è verificato un errore, inserire i dati corretti.")
+
 #----------------------------------------------------------------------
-    #ELABORAZIONE TABELLA
+    #INTERAZIONE CON DATABASE
     #inizializzazione del ciclo
     while True:
         try:
-            menu()
+            menu(nome_azienda)
             scelta=int(input("Digita la scelta: "))
 
             if scelta==1:
                 sql=cerca()
-                cursor.execute(sql) #execute() esegue il comando SQL passatogli
-                result=cursor.fetchall() #fetchall() restituisce tutte le tuple
+                cursore.execute(sql) #execute() esegue il comando SQL passatogli
+                result=cursore.fetchall() #fetchall() restituisce tutte le tuple
                 for riga in result:
                     print(riga)
             elif scelta==2:
                 sql,values=insert()
                 if sql:
-                    cursor.execute(sql,values)
+                    cursore.execute(sql,values)
                     db.commit()
             elif scelta==3:
                 sql,values=modifica()
-                cursor.execute(sql,values)
+                cursore.execute(sql,values)
                 db.commit()
             elif scelta==4:
                 sql=elimina()
-                cursor.execute(sql)
+                cursore.execute(sql)
                 db.commit()
             elif scelta==5:
                 #CREAZIONE DTT
@@ -171,8 +185,8 @@ def main():
 
                 #dati cliente
                 sql=get_cliente()
-                cursor.execute(sql)
-                dati_cliente=cursor.fetchall()
+                cursore.execute(sql)
+                dati_cliente=cursore.fetchall()
                 righe.append(intestazione_clienti)
                 righe.append(dati_cliente)
 
@@ -181,17 +195,18 @@ def main():
                 righe.append(intestazione_prodotti)
                 while True:
                     sql=get_prodotto()
-                    cursor.execute(sql)
-                    dati_prodotto=cursor.fetchall()
+                    cursore.execute(sql)
+                    dati_prodotto=cursore.fetchall()
                     righe.append(dati_prodotto)
 
                     scelta=input("Vuoi inserire altri prodotti? (y/n): ").lower()
                     if scelta=="n":
                         break
 
-                genera_csv(righe)
+                genera_csv(righe,nome_azienda)
             elif scelta==6:
                 print("Esco dal programma..")
+                db.close()
                 break
         except ValueError:
             print("Inserito valore non valido, digitare scelta corretta (1-6)")
