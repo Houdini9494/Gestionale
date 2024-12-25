@@ -1,23 +1,24 @@
 import mysql.connector
-from mysql.connector import cursor
 import csv
 from datetime import datetime
 import genera_db
 
 #----------------------------------------------------------------------
-def menu(nome_azienda):
-    print()
+def menu(nome_azienda,user):
+    opzioni={
+        1:"Cerca nel database",
+        2:"Inserisci",
+        3:"Modifica",
+        4:"Elimina",
+        5:"Genera DDT in CSV",
+        6:"Esci dal programma",
+    }
+    print("\n--------------------------------")
+    print(f"Azienda: {nome_azienda} - Utente: {user}")
     print("--------------------------------")
-    print(f"Azienda: {nome_azienda}")
-    print()
-    print("\tMENU")
-    print("1-Cerca nel database")
-    print("2-Inserisci")
-    print("3-Modifica")
-    print("4-Elimina")
-    print("5-Genera DDT in CSV")
-    print("6-Esci dal programma..")
-    print()
+    print("\n\tMENU")
+    for k,v in opzioni.items():
+        print(f"{k}-{v}")
 #----------------------------------------------------------------------
 def cerca():
     tabelle=["clienti","prodotti"]
@@ -27,7 +28,6 @@ def cerca():
         scelta=input("Vuoi cercare clienti o prodotti? ").lower()
     print("\n\t"+scelta.upper())
     return f"SELECT * FROM {scelta}"
-
 #----------------------------------------------------------------------
 def insert():
     while True:
@@ -132,8 +132,8 @@ def genera_csv(righe,nome_azienda):
 #----------------------------------------------------------------------
 def main():
     host,user,psw,nome=genera_db.inizializza_db()
-    while True:
-        try:
+    try:
+        while True:
             #creazione variabile della connessione
             db = mysql.connector.connect(
                 host=host,
@@ -147,16 +147,16 @@ def main():
             #creazione del cursore ed assegnazione alla variabile relativa alla connessione creata
             cursore = db.cursor()
             break #esce dal ciclo se i dati sono corretti
-        except:
-            print("Si è verificato un errore, inserire i dati corretti.")
+    except:
+        print("Errore nella connessione al database.")
 
 #----------------------------------------------------------------------
     #INTERAZIONE CON DATABASE
     #inizializzazione del ciclo
-    while True:
-        try:
-            menu(nome_azienda)
-            scelta=int(input("Digita la scelta: "))
+    try:
+        while True:
+            menu(nome_azienda,user)
+            scelta=int(input("\nDigita la scelta: "))
 
             if scelta==1:
                 sql=cerca()
@@ -208,8 +208,13 @@ def main():
                 print("Esco dal programma..")
                 db.close()
                 break
-        except ValueError:
-            print("Inserito valore non valido, digitare scelta corretta (1-6)")
+    except ValueError:
+        print("Inserito valore non valido, digitare scelta corretta (1-6)")
+    except Exception:
+        print("Si è verificato un errore inatteso.")
+    finally:
+        db.close()
+        print("Connessione al database chiusa.")
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
 main()
