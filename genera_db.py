@@ -1,5 +1,4 @@
 import mysql.connector
-from mysql.connector import cursor
 
 def inizializza_db():
     try:
@@ -56,9 +55,13 @@ def inizializza_db():
             `iva` int DEFAULT NULL,
             PRIMARY KEY (`id`))
         """)
-        print("Tabelle create/verificate con successo")
+        print("Tabelle verificate/create con successo")
 
         return host_db, user_db, psw_db, nome_db
 
     except:
         print("Si è verificato un errore.")
+    finally:
+        if connection.is_connected():
+            cursore.close()
+            connection.close()
