@@ -20,13 +20,29 @@ def menu(nome_azienda,user):
     for k,v in opzioni.items():
         print(f"{k}-{v}")
 #----------------------------------------------------------------------
+def intestazioneClienti():
+    print("---------------------------------------------")
+    print("| ID | Rag.Sociale | Indirizzo | P.IVA | SDI |")
+    print("---------------------------------------------")
+
+def intestazioneProdotti():
+    print("-----------------------------------------")
+    print("| ID | Nome | U.M. | Prezzo/um | IVA(%) |")
+    print("-----------------------------------------")
+
 def cerca():
     tabelle=["clienti","prodotti"]
     scelta=input("Vuoi cercare clienti o prodotti? ").lower()
     while scelta not in tabelle:
         print("Scelta errata!")
         scelta=input("Vuoi cercare clienti o prodotti? ").lower()
+
     print("\n\t"+scelta.upper())
+    if scelta=="clienti":
+        intestazioneClienti()
+    elif scelta=="prodotti":
+        intestazioneProdotti()
+
     return f"SELECT * FROM {scelta}"
 #----------------------------------------------------------------------
 def insert():
@@ -149,7 +165,6 @@ def main():
             break #esce dal ciclo se i dati sono corretti
     except:
         print("Errore nella connessione al database.")
-
 #----------------------------------------------------------------------
     #INTERAZIONE CON DATABASE
     #inizializzazione del ciclo
@@ -166,7 +181,7 @@ def main():
                 cursore.execute(sql) #execute() esegue il comando SQL passatogli
                 result=cursore.fetchall() #fetchall() restituisce tutte le tuple
                 for riga in result:
-                    print(riga)
+                    print("|",str(riga).strip().replace("(","").replace(")","").replace("'","").replace(","," | "),"|")
             elif scelta==2:
                 sql,values=insert()
                 if sql:
