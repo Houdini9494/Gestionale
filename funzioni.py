@@ -56,7 +56,7 @@ def insert():
         prezzo=input("Inserisci il prezzo/um del prodotto: ")
         iva=input("Inserisci il valore dell'iva per il prodotto: ")
 
-        sql = f"INSERT INTO {tabella} (nome, um, prezzo_x_um, iva) VALUES (%s, %s, %s, %s)"
+        sql = f"INSERT INTO {tabella} (nome, um, prezzo, iva) VALUES (%s, %s, %s, %s)"
         values=(nome, um, prezzo, iva)
     elif tabella=="clienti":
         rag_sociale=input("Inserisci la ragione sociale del cliente: ")
